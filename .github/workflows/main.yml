@@ -1,4 +1,11 @@
-steps:
+name: env_tutorial
+## Triggers the workflow on when there is a push, or 
+## pull request on the main branch
+on: [pull_request, push] 
+
+jobs:
+  job1:
+  steps:
 ...
 - name: Unit Test
   uses: ...
