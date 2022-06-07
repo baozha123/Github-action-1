@@ -1,19 +1,55 @@
-name: env_tutorial
-## Triggers the workflow on when there is a push, or 
-## pull request on the main branch
-on: [pull_request, push] 
+- name: Configure AWS Credentials
+  uses: aws-actions/configure-aws-credentials@v1
+    with:
+      role-to-assume: arn:aws:iam::123456789100:role/my-github-actions-role
+      aws-region: us-east-1
 
 jobs:
-  job1:
-    ## The type of runner that the job will run on
-    runs-on: ubuntu-latest 
+  deploy:
+    name: Upload to Amazon S3
+    runs-on: ubuntu-latest
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+    permissions:
+      id-token: write
+      contents: read
     steps:
-      - name: step 1
-        env:
-          ## Environment variable for step 1
-          API_KEY: XXXXXXXXXXXX    
-        ## Reference your environment variables
-        run: echo "The API key is:${{secrets.API_KEY}}"   
-      - name: step 2
-        ## Reference your environment variables
-        run: echo "The API key is:${{secrets.API_KEY}}"   
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials from Test account
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::111111111111:role/my-github-actions-role-test
+        aws-region: us-east-1
+
+    - name: Copy files to the test website with the AWS CLI
+      run: |
+        aws s3 sync . s3://my-s3-test-website-bucket
+
+    - name: Configure AWS credentials from Production account
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::222222222222:role/my-github-actions-role-prod
+        aws-region: us-west-2
+
+    - name: Copy files to the production website with the AWS CLI
+      run: |
+        aws s3 sync . s3://my-s3-prod-website-bucket
+        
+      - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-region: us-east-1
+        role-to-assume: arn:aws:iam::123456789100:role/my-github-actions-role
+        role-session-name: MySessionName
+        
+            - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        role-external-id: ${{ secrets.AWS_ROLE_EXTERNAL_ID }}
+        role-duration-seconds: 1200
+        role-session-name: MySessionName
