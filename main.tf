@@ -83,12 +83,3 @@ resource "aws_instance" "public_inst_1" {
   }
 }
 
-resource "aws_instance" "public_inst_2" {
-  ami           = "ami-06eecef118bbf9259"
-  instance_type = "t2.micro"
-  subnet_id = "${aws_subnet.dev-public-2.id}"
-  key_name = "key"
-  tags = {
-    Name = "public_inst_2"
- } 
-}
